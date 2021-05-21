@@ -7,7 +7,13 @@
 //     console.log(error);
 //   });
 
-  //----------------------------------------//
+//----------------------------------------//
+function makeResponsive() {
+
+  var svgArea = d3.select(".container").select("svg");
+  if (!svgArea.empty()) {
+    svgArea.remove();
+  }
 
   var svgWidth = 960;
   var svgHeight = 500;
@@ -71,7 +77,7 @@
       .data(censusData)
       .enter()
       .append("circle")
-      .classed("stateCircle d3-tip", true)
+      .classed("stateCircle stateText", true)
       .attr("cx", d => xLinearScale(d.income))
       .attr("cy", d => yLinearScale(d.obesity))
       .attr("r", "15")
@@ -98,7 +104,7 @@
       // Step 6: Initialize tool tip
       // ==============================
       var toolTip = d3.tip()
-        .attr("class", "tooltip")
+        .attr("class", "d3-tip")
         .offset([80, -60])
         .html(function(d) {
           return (`${d.state}<br>Income: ${d.income}<br>Obesity: ${d.obesity}`);
@@ -110,7 +116,8 @@
   
       // Step 8: Create event listeners to display and hide the tooltip
       // ==============================
-      circlesGroup.on("click", function(d) {
+      circlesGroup.on("mouseover", function(d) {
+        
         toolTip.show(d, this);
       })
         // onmouseout event
@@ -134,4 +141,9 @@
     }).catch(function(error) {
       console.log(error);
     });
+}
+
+makeResponsive()
+
+d3.select(window).on("resize", makeResponsive);
   
