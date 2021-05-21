@@ -24,6 +24,7 @@ var chartGroup = svg.append("g")
 
 // Initial Params
 var chosenXAxis = "income";
+var chosenYAxis = "obesity";
 
 // function used for updating x-scale var upon click on axis label
 function xScale(censusData, chosenXAxis) {
@@ -38,8 +39,20 @@ function xScale(censusData, chosenXAxis) {
 
 }
 
+function yScale(censusData, chosenYAxis) {
+  // create scales
+  var yLinearScale = d3.scaleLinear()
+    .domain([d3.min(censusData, d => d[chosenYAxis]) * 0.8,
+      d3.max(censusData, d => d[chosenYAxis]) * 1.2
+    ])
+    .range([0, width]);
+
+  return yLinearScale;
+
+}
+
 // function used for updating xAxis var upon click on axis label
-function renderAxes(newXScale, xAxis) {
+function renderXAxes(newXScale, xAxis) {
   var bottomAxis = d3.axisBottom(newXScale);
 
   xAxis.transition()
@@ -49,19 +62,38 @@ function renderAxes(newXScale, xAxis) {
   return xAxis;
 }
 
+function renderYAxes(newYScale, yAxis) {
+  var leftAxis = d3.axisBottom(newYScale);
+
+  xAxis.transition()
+    .duration(1000)
+    .call(leftAxis);
+
+  return yAxis;
+}
+
 // function used for updating circles group with a transition to
 // new circles
-function renderCircles(circlesGroup, newXScale, chosenXAxis) {
+function renderXCircles(circlesXGroup, newXScale, chosenXAxis) {
 
-  circlesGroup.transition()
+  circlesXGroup.transition()
     .duration(1000)
     .attr("cx", d => newXScale(d[chosenXAxis]));
 
-  return circlesGroup;
+  return circlesXGroup;
+}
+
+function renderYCircles(circlesYGroup, newYScale, chosenYAxis) {
+
+  circlesYGroup.transition()
+    .duration(1000)
+    .attr("cx", d => newYScale(d[chosenYAxis]));
+
+  return circlesYGroup;
 }
 
 // function used for updating circles group with new tooltip
-function updateToolTip(chosenXAxis, circlesGroup) {
+function updateXToolTip(chosenXAxis, circlesXGroup) {
 
   var label;
 
@@ -77,6 +109,37 @@ function updateToolTip(chosenXAxis, circlesGroup) {
     .offset([80, -60])
     .html(function(d) {
       return (`${d.state}<br>${label} ${d[chosenXAxis]}`);
+    });
+
+  circlesGroup.call(toolTip);
+
+  circlesGroup.on("mouseover", function(d) {
+    toolTip.show(d, this);
+  })
+    // onmouseout event
+    .on("mouseout", function(d, i) {
+      toolTip.hide(d);
+    });
+
+  return circlesGroup;
+}
+
+function updateYToolTip(chosenYAxis, circlesYGroup) {
+
+  var label;
+
+  if (chosenYAxis === "income") {
+    label = "Income:";
+  }
+  else {
+    label = "Healthcare:";
+  }
+
+  var toolTip = d3.tip()
+    .attr("class", "d3-tip")
+    .offset([80, -60])
+    .html(function(d) {
+      return (`${d.state}<br>${label} ${d[chosenYAxis]}`);
     });
 
   circlesGroup.call(toolTip);
