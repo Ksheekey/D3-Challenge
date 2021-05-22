@@ -1,3 +1,5 @@
+
+//seting boundaries
 var svgWidth = 960;
 var svgHeight = 500;
 
@@ -11,24 +13,21 @@ var margin = {
 var width = svgWidth - margin.left - margin.right;
 var height = svgHeight - margin.top - margin.bottom;
 
-// Create an SVG wrapper, append an SVG group that will hold our chart,
-// and shift the latter by left and top margins.
+// SVG group to hold the chart.
 var svg = d3.select("#scatter")
   .append("svg")
   .attr("width", svgWidth)
   .attr("height", svgHeight);
 
-// Append an SVG group
 var chartGroup = svg.append("g")
   .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-// Initial Params
+// Setting initial Params
 var chosenXAxis = "income";
 var chosenYAxis = "Obesity";
 
 // function used for updating x-scale var upon click on axis label
 function xScale(censusData, chosenXAxis) {
-  // create scales
   var xLinearScale = d3.scaleLinear()
     .domain([d3.min(censusData, d => d[chosenXAxis]) * 0.8,
       d3.max(censusData, d => d[chosenXAxis]) * 1.2
@@ -88,7 +87,6 @@ function updateToolTip(chosenXAxis, circlesGroup) {
   circlesGroup.on("mouseover", function(d) {
     toolTip.show(d, this);
   })
-    // onmouseout event
     .on("mouseout", function(d, i) {
       toolTip.hide(d);
     });
@@ -96,11 +94,11 @@ function updateToolTip(chosenXAxis, circlesGroup) {
   return circlesGroup;
 }
 
-// Retrieve data from the CSV file and execute everything below
+// Data
 d3.csv("./assets/js/data.csv").then(function(censusData, err) {
   if (err) throw err;
 
-  // parse data
+  // parse data and turn to integers
   censusData.forEach(function(d) {
     d.income = +d.income;
     d.obesity = +d.obesity;
@@ -108,7 +106,7 @@ d3.csv("./assets/js/data.csv").then(function(censusData, err) {
     d.age = +d.age;
   });
 
-  // xLinearScale function above csv import
+  // xLinearScale
   var xLinearScale = xScale(censusData, chosenXAxis);
 
   // Create y scale function
@@ -130,7 +128,7 @@ d3.csv("./assets/js/data.csv").then(function(censusData, err) {
   chartGroup.append("g")
     .call(leftAxis);
 
-  // append initial circles
+  // Circles
   var circlesGroup = chartGroup.selectAll("circle")
     .data(censusData)
     .enter()
@@ -139,9 +137,9 @@ d3.csv("./assets/js/data.csv").then(function(censusData, err) {
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
     .attr("cy", d => yLinearScale(d.obesity))
     .attr("r", 20)
-    //.attr("fill", "orange")
     .attr("opacity", ".5");
 
+    //appending the abbreviation into the circles
     var circleLabels = chartGroup.selectAll(null).data(censusData).enter().append("text");
 
       circleLabels
@@ -166,21 +164,21 @@ d3.csv("./assets/js/data.csv").then(function(censusData, err) {
   var incomeLabel = labelsGroup.append("text")
     .attr("x", 0)
     .attr("y", 15)
-    .attr("value", "income") // value to grab for event listener
+    .attr("value", "income")
     .classed("active", true)
     .text("Income");
 
   var healthcareLabel = labelsGroup.append("text")
     .attr("x", 0)
     .attr("y", 33)
-    .attr("value", "healthcare") // value to grab for event listener
+    .attr("value", "healthcare")
     .classed("inactive", true)
     .text("Healthcare");
 
   var ageLabel = labelsGroup.append("text")
     .attr("x", 0)
     .attr("y", 50)
-    .attr("value", "age") // value to grab for event listener
+    .attr("value", "age")
     .classed("inactive", true)
     .text("Age");
 
@@ -207,16 +205,12 @@ d3.csv("./assets/js/data.csv").then(function(censusData, err) {
   // x axis labels event listener
   labelsGroup.selectAll("text")
     .on("click", function() {
-      // get value of selection
       var value = d3.select(this).attr("value");
       if (value !== chosenXAxis) {
 
         // replaces chosenXAxis with value
         chosenXAxis = value;
 
-        // console.log(chosenXAxis)
-
-        // functions here found above csv import
         // updates x scale for new data
         xLinearScale = xScale(censusData, chosenXAxis);
 
@@ -224,7 +218,6 @@ d3.csv("./assets/js/data.csv").then(function(censusData, err) {
         xAxis = renderAxes(xLinearScale, xAxis);
 
         // updates circles with new x values
-        //d3.select(".panel-body").html("")
         circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
 
         // updates tooltips with new info
