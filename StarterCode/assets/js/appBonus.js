@@ -143,17 +143,10 @@ d3.csv("./assets/js/data.csv").then(function(censusData, err) {
     var circleLabels = chartGroup.selectAll(null).data(censusData).enter().append("text");
 
       circleLabels
-      .attr("x", function(d) {
-          return xLinearScale(d.income);
-        })
-        .attr("y", function(d) {
-          return yLinearScale(d.obesity);
-        })
-        .text(function(d) {
-          return d.abbr;
-        })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "10px")
+      .attr("x", function(d) {return xLinearScale(d.income);})
+        .attr("y", function(d) {return yLinearScale(d.obesity);})
+        .text(function(d) {return d.abbr;})
+        .attr("font-size", "7px")
         .attr("text-anchor", "middle")
         .attr("fill", "black");
     
